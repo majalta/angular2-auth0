@@ -1,6 +1,9 @@
 {
     "name": "angular2-typescript-webpack",
     "version": "0.0.1",
+    "engines": {
+        "npm": "3.9.x"
+    },
     "scripts": {
         "typings": "typings",
         "postinstall": "npm run typings install",
