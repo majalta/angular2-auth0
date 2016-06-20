@@ -1,4 +1,4 @@
-import { provideRouter, RouterConfig }  from '@angular/router';
+import { provideRouter, RouterConfig } from '@angular/router';
 
 import {AuthComponent} from './auth.component';
 import {DashboardComponent} from './dashboard.component';
