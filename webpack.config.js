@@ -1,3 +1,4 @@
+const helpers = require('./config/helpers');
 var webpack = require("webpack");
 
 /*
@@ -12,8 +13,7 @@ const ENV = process.env.ENV = process.env.NODE_ENV = 'development';
 const METADATA = {
   title: 'Test app AngularJS 2',
   baseUrl: '/',
-  // isDevServer: helpers.isWebpackDevServer()
-  isDevServer: true
+  isDevServer: helpers.isWebpackDevServer()
 };
 
 module.exports = {
@@ -46,8 +46,7 @@ module.exports = {
      * See: http://webpack.github.io/docs/configuration.html#output-path
      */
     output: {
-        // path: helpers.root('dist'),
-        path: __dirname + '/dist',
+        path: helpers.root('dist'),
         filename: '[name].bundle.js',
 
         /**
@@ -60,8 +59,7 @@ module.exports = {
     resolve: {
         extensions: ['', '.js', '.ts'],
         // Make sure root is src
-        // root: helpers.root('src'),
-        root: 'src',
+        root: helpers.root('src'),
         // remove other default values
         modulesDirectories: ['node_modules'],
     },
@@ -77,8 +75,7 @@ module.exports = {
                 loader: 'source-map-loader',
                 exclude: [
                     // these packages have problems with their sourcemaps
-                    // helpers.root('node_modules/rxjs'),
-                    'node_modules/rxjs',
+                    helpers.root('node_modules/rxjs'),
                     'node_modules/@angular',
                 ]
             }
@@ -120,5 +117,15 @@ module.exports = {
             template: 'src/index.html',
             chunksSortMode: 'dependency'
         })
-    ]
+    ],
+    devServer: {
+        port: '8080',
+        host: 'localhost',
+        historyApiFallback: true,
+        watchOptions: {
+          aggregateTimeout: 300,
+          poll: 1000
+        },
+        outputPath: helpers.root('dist')
+    }
 }
