@@ -1,0 +1,11 @@
+export class Config {
+    key = 'xxxxxxx';
+    domain = 'xxxxxxxxxx';
+
+    getKey() {
+        return this.key;
+    }
+    getDomain() {
+        return this.domain;
+    }
+}

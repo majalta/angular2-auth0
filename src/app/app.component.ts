@@ -1,6 +1,5 @@
 import {Component} from '@angular/core';
-import {RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS} from '@angular/router-deprecated';
-
+import { ROUTER_DIRECTIVES }    from '@angular/router';
 import {AuthComponent} from './auth.component';
 import {DashboardComponent} from './dashboard.component';
 
@@ -18,25 +17,8 @@ import {DashboardComponent} from './dashboard.component';
     directives: [
         AuthComponent,
         ROUTER_DIRECTIVES
-    ],
-    providers: [
-        ROUTER_PROVIDERS,
     ]
 })
-
-@RouteConfig([
-    {
-        path: '/login',
-        name: 'Login',
-        component: AuthComponent,
-        useAsDefault: true
-    },
-    {
-        path: '/dashboard',
-        name: 'Dashboard',
-        component: DashboardComponent,
-    }
-])
 
 export class AppComponent {
     title = 'Sample App!';

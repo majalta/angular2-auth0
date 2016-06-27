@@ -1,10 +1,8 @@
-import { bootstrap }    from '@angular/platform-browser-dynamic';
-import { AppComponent } from './app/app.component';
-import {
-  ROUTER_PROVIDERS,
-} from '@angular/router-deprecated';
+import {bootstrap} from '@angular/platform-browser-dynamic';
+import {AppComponent} from './app/app.component';
+import {APP_ROUTER_PROVIDERS} from './app/app.routes';
 
 bootstrap(AppComponent, [
-    ROUTER_PROVIDERS
+    APP_ROUTER_PROVIDERS
 ])
 .catch(err => console.error(err));

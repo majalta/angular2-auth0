@@ -41,6 +41,7 @@ module.exports = {
       'main':      './src/main.browser.ts'
 
     },
+    debug: false,
     /**
      * The output directory as absolute path (required).
      * See: http://webpack.github.io/docs/configuration.html#output-path
