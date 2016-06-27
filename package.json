@@ -9,7 +9,7 @@
     "postinstall": "npm run typings install",
     "build": "webpack",
     "start-dev": "webpack-dev-server --host 0.0.0.0",
-    "start": "node server/server.js"
+    "start": "npm run build && node server/server.js"
   },
   "dependencies": {
     "@angular/common": "2.0.0-rc.2",
