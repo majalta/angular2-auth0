@@ -5,8 +5,8 @@ import {AuthService} from './auth0.service';
   selector: 'my-auth',
   template: `
     <div class="toolbar">
-      <button (click)="auth.login()">Login</button>
-      <button (click)="auth.logout()">Logout</button>
+      <button (click)="login()">Login</button>
+      <button (click)="logout()">Logout</button>
     </div>
   `,
   providers:[AuthService]

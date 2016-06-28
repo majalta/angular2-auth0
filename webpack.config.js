@@ -10,10 +10,10 @@ const DefinePlugin = require('webpack/lib/DefinePlugin');
  * Webpack Constants
  */
 const ENV = process.env.ENV = process.env.NODE_ENV = 'development';
-// const AUTH0KEY = 'A84lzxmLvj3S2HG8KckHss3IjbJErVKu'
-const AUTH0KEY = process.env.auth0_key;
-// const AUTH0DOMAIN = 'majalta.eu.auth0.com';
-const AUTH0DOMAIN = process.env.auth0_domain;
+const AUTH0KEY = 'A84lzxmLvj3S2HG8KckHss3IjbJErVKu'
+// const AUTH0KEY = process.env.auth0_key;
+const AUTH0DOMAIN = 'majalta.eu.auth0.com';
+// const AUTH0DOMAIN = process.env.auth0_domain;
 
 const METADATA = {
     title: 'Test app AngularJS 2',
