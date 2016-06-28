@@ -5,15 +5,24 @@ var webpack = require("webpack");
  * Webpack Plugins
  */
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-
+const DefinePlugin = require('webpack/lib/DefinePlugin');
 /*
  * Webpack Constants
  */
 const ENV = process.env.ENV = process.env.NODE_ENV = 'development';
+// const AUTH0KEY = 'A84lzxmLvj3S2HG8KckHss3IjbJErVKu'
+const AUTH0KEY = process.env.auth0_key;
+// const AUTH0DOMAIN = 'majalta.eu.auth0.com';
+const AUTH0DOMAIN = process.env.auth0_domain;
+
 const METADATA = {
-  title: 'Test app AngularJS 2',
-  baseUrl: '/',
-  isDevServer: helpers.isWebpackDevServer()
+    title: 'Test app AngularJS 2',
+    baseUrl: '/',
+    ENV: ENV,
+    isDevServer: helpers.isWebpackDevServer(),
+    AUTH0KEY: AUTH0KEY,
+    AUTH0DOMAIN: AUTH0DOMAIN
+
 };
 
 module.exports = {
@@ -117,6 +126,25 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: 'src/index.html',
             chunksSortMode: 'dependency'
+        }),
+        /**
+        * Plugin: DefinePlugin
+        * Description: Define free variables.
+        * Useful for having development builds with debug logging or adding global constants.
+        *
+        * Environment helpers
+        *
+        * See: https://webpack.github.io/docs/list-of-plugins.html#defineplugin
+        */
+        // NOTE: when adding more properties, make sure you include them in custom-typings.d.ts
+        new DefinePlugin({
+            'ENV': JSON.stringify(METADATA.ENV),
+            'process.env': {
+                'ENV': JSON.stringify(METADATA.ENV),
+                'NODE_ENV': JSON.stringify(METADATA.ENV),
+                'AUTH0KEY': JSON.stringify(METADATA.AUTH0KEY),
+                'AUTH0DOMAIN':JSON.stringify(METADATA.AUTH0DOMAIN)
+            }
         })
     ],
     devServer: {

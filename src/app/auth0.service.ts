@@ -1,6 +1,5 @@
 import {Injectable} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Config} from '../../config/auth0.config';
 import {tokenNotExpired} from 'angular2-jwt';
 
 // We want to avoid any 'name not found' warnings from TypeScript
@@ -8,14 +7,13 @@ declare var Auth0Lock: any;
 
 @Injectable()
 export class AuthService {
-    config = new Config();
     lock;
     constructor(
         private router: Router
     ) {
         this.lock = new Auth0Lock(
-            this.config.getKey(),
-            this.config.getDomain()
+            process.env.AUTH0KEY,
+            process.env.AUTH0DOMAIN
         );
     }
 
