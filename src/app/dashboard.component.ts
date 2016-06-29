@@ -17,6 +17,9 @@ declare var google: any;
             <ul>
                 <li *ngFor="let restaurant of restaurants">
                 <span class="badge">{{restaurant.name}}</span> {{restaurant.vicinity}}
+                <div *ngIf="restaurant.photos">
+                    <img [src]="restaurant.photos[0].getUrl({'maxWidth': 300, 'maxHeight': 300})">
+                </div>
                 </li>
             </ul>
             <div id="results"></div>
@@ -56,7 +59,6 @@ export class DashboardComponent implements OnInit{
                     this.googlePlacesService.getPlaces(container, latLng)
                         .toPromise()
                         .then((list:any[]) => {
-                            console.log(list);
                             this.restaurants = list;
                         });
                 }
