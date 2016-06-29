@@ -14,10 +14,8 @@ declare var google: any;
         <h3> Welcome {{profile.given_name}}!</h3>
         <button (click)="getPlaces()">Get Location</button>
         <ul>
-            <li
-                *ngFor="let restaurant of restaurants"
-            >
-                <span class="badge">{{restaurant.id}}</span> {{restaurant.name}}
+            <li *ngFor="let restaurant of restaurants">
+                <span class="badge">{{restaurant.name}}</span> {{restaurant.vicinity}}
             </li>
         </ul>
         <div id="map"></div>
@@ -25,14 +23,16 @@ declare var google: any;
   `
 })
 // @CanActivate(() => this.tokenNotExpired())
-export class DashboardComponent {
+export class DashboardComponent implements OnInit{
     profile: Object;
-    restaurants: any[];
+    restaurants: any[] = [];
 
     constructor () {
         this.profile = JSON.parse(localStorage.getItem('profile'));
-        this.restaurants = [];
         console.log(this.profile)
+    }
+    ngOnInit() {
+        this.getPlaces();
     }
     getLocation () {
         // Try HTML5 geolocation.
@@ -55,9 +55,10 @@ export class DashboardComponent {
     }
 
     getPlaces() {
-        var result = this.getLocation()
+        this.getLocation()
             .then(
                 position => {
+                    console.log("eee")
                     var map = new google.maps.Map(
                         document.getElementById('map'),
                         {
@@ -65,23 +66,31 @@ export class DashboardComponent {
                             zoom: 15
                         }
                     );
-                    var service = new google.maps.places.PlacesService(map);
-                    service.nearbySearch({
-                        location: position,
-                        radius: 500,
-                        types: ['restaurant']
-                    }, this.logResults);
+                    this.getRestaurants(map, position)
+                        .then((list:any[]) => {
+                            console.log(list);
+                            this.restaurants = list;
+                        });
                 }
             );
     }
 
-    logResults(results, status) {
-        if (status === google.maps.places.PlacesServiceStatus.OK) {
-            for (var i = 0; i < results.length; i++) {
-                console.log(results[i]);
+    getRestaurants(map, position) {
+        var data = new Observable(
+            observer => {
+                var service = new google.maps.places.PlacesService(map);
+                service.nearbySearch({location: position,
+                    radius: 500,
+                    types: ['restaurant']},
+                    (results, status) => {
+                        if (status === google.maps.places.PlacesServiceStatus.OK) {
+                            observer.next(results);
+                            observer.complete();
+                        }
+                    }
+                )
             }
-            this.restaurants = results;
-            console.log(this.restaurants)
-        }
+        );
+        return data.toPromise();
     }
 }
