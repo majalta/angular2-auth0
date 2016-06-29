@@ -1,96 +1,65 @@
 import {Component, OnInit} from '@angular/core';
 import {Observable} from 'rxjs/Rx';
 import 'rxjs/add/operator/toPromise';
-// import {JwtHelper} from 'angular2-jwt';
+import {GeolocationService} from './geolocation.service';
+import {GooglePlacesService} from './gplaces.service';
 
 declare var google: any;
 
 // TODO: refactorizar servicio maps.
-
 @Component({
-  selector: 'my-dashboard',
-  template: `
-    <div class="dashboard"> dd
-        <h3> Welcome {{profile.given_name}}!</h3>
-        <button (click)="getPlaces()">Get Location</button>
-        <ul>
-            <li *ngFor="let restaurant of restaurants">
+    selector: 'my-dashboard',
+    template: `
+        <div class="dashboard">
+            <h3> Welcome {{profile.given_name}}!</h3>
+            <p>Which places they are near me?</p>
+            <button (click)="getPlaces()">Search</button>
+            <ul>
+                <li *ngFor="let restaurant of restaurants">
                 <span class="badge">{{restaurant.name}}</span> {{restaurant.vicinity}}
-            </li>
-        </ul>
-        <div id="map"></div>
-    </div>
-  `
+                </li>
+            </ul>
+            <div id="results"></div>
+        </div>
+    `,
+    providers:[
+        GeolocationService,
+        GooglePlacesService
+    ]
 })
 // @CanActivate(() => this.tokenNotExpired())
 export class DashboardComponent implements OnInit{
     profile: Object;
     restaurants: any[] = [];
 
-    constructor () {
+    constructor (
+        private geolocationService: GeolocationService,
+        private googlePlacesService: GooglePlacesService
+    ) {
         this.profile = JSON.parse(localStorage.getItem('profile'));
         console.log(this.profile)
     }
+
     ngOnInit() {
-        this.getPlaces();
-    }
-    getLocation () {
-        // Try HTML5 geolocation.
-        let options = {timeout: 10000, enableHighAccuracy: true};
-        var data = new Observable(
-            observer => {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        let latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-                        observer.next(latLng);
-                        observer.complete();
-                    },
-                    (error) => {
-                        console.log(error);
-                    }, options
-                );
-            }
-        );
-        return data.toPromise();
+        //this.getPlaces();
     }
 
     getPlaces() {
-        this.getLocation()
+        this.geolocationService.getLocation()
+            .toPromise()
             .then(
                 position => {
-                    console.log("eee")
-                    var map = new google.maps.Map(
-                        document.getElementById('map'),
-                        {
-                            center: position,
-                            zoom: 15
-                        }
-                    );
-                    this.getRestaurants(map, position)
+                    var latLng = new google.maps.LatLng(
+                        position.coords.latitude,
+                        position.coords.longitude);
+                    var container = document.getElementById('results');
+                    this.googlePlacesService.getPlaces(container, latLng)
+                        .toPromise()
                         .then((list:any[]) => {
                             console.log(list);
                             this.restaurants = list;
                         });
                 }
             );
-    }
-
-    getRestaurants(map, position) {
-        var data = new Observable(
-            observer => {
-                var service = new google.maps.places.PlacesService(map);
-                service.nearbySearch({location: position,
-                    radius: 500,
-                    types: ['restaurant']},
-                    (results, status) => {
-                        if (status === google.maps.places.PlacesServiceStatus.OK) {
-                            observer.next(results);
-                            observer.complete();
-                        }
-                    }
-                )
-            }
-        );
-        return data.toPromise();
     }
 }
