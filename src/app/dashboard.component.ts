@@ -3,6 +3,7 @@ import {Observable} from 'rxjs/Rx';
 import 'rxjs/add/operator/toPromise';
 import {GeolocationService} from './geolocation.service';
 import {GooglePlacesService} from './gplaces.service';
+import {ImageRecognitionService} from './imagerecognition.service';
 
 declare var google: any;
 
@@ -17,8 +18,8 @@ declare var google: any;
             <ul>
                 <li *ngFor="let restaurant of restaurants">
                 <span class="badge">{{restaurant.name}}</span> {{restaurant.vicinity}}
-                <div *ngIf="restaurant.photos">
-                    <img [src]="restaurant.photos[0].getUrl({'maxWidth': 300, 'maxHeight': 300})">
+                <div *ngFor="let photo of restaurant.photos">
+                    <img [src]="photo">
                 </div>
                 </li>
             </ul>
@@ -27,7 +28,8 @@ declare var google: any;
     `,
     providers:[
         GeolocationService,
-        GooglePlacesService
+        GooglePlacesService,
+        ImageRecognitionService
     ]
 })
 // @CanActivate(() => this.tokenNotExpired())
@@ -37,7 +39,8 @@ export class DashboardComponent implements OnInit{
 
     constructor (
         private geolocationService: GeolocationService,
-        private googlePlacesService: GooglePlacesService
+        private googlePlacesService: GooglePlacesService,
+        private imagerecognitionservice: ImageRecognitionService
     ) {
         this.profile = JSON.parse(localStorage.getItem('profile'));
         console.log(this.profile)
@@ -59,9 +62,76 @@ export class DashboardComponent implements OnInit{
                     this.googlePlacesService.getPlaces(container, latLng)
                         .toPromise()
                         .then((list:any[]) => {
+                            list.forEach(
+                                (element, index, array) => {
+                                    //google over request error
+                                    setTimeout(function () {
+                                    this.getPhotosUrl(element.place_id)
+                                        .then(urlList => {
+                                            array[index].photos = urlList;
+                                        })
+                                    }.bind(this), index*300);
+                                }
+                            )
                             this.restaurants = list;
                         });
                 }
             );
+    }
+
+    getPhotosUrl(placeId) {
+        var urlList: string[] = [];
+        return this.googlePlacesService.getDetails(placeId)
+            .toPromise()
+            .then(data => {
+                //loop photos array to get the url.
+                if (data.photos) {
+                    data.photos.map(
+                        photo => {
+                            var url = photo.getUrl(
+                                {'maxWidth': 300, 'maxHeight': 300}
+                            );
+                            var photoFood = this.getPhotosTaggedWith(url,'comida');
+                            photoFood.subscribe(x => {
+                                if(x) {
+                                    urlList.push(url);
+                                }
+                            });
+                        }
+                    );
+                } else {
+                    console.log("NO photos for this place_id: " + placeId);
+                }
+                return urlList;
+            })
+            .catch(error => {
+                console.error(error);
+                return urlList;
+            });
+    }
+
+    getPhotosTaggedWith(photoUrl, tagName) {
+        var obs = Observable.create(
+            observer => {
+                this.imagerecognitionservice.getTags(photoUrl)
+                    .subscribe(tags => {
+                        observer.next(tags);
+                    })
+            }
+        ).switchMap((tags: any[]) => Observable.create(
+                observer => {
+                    tags.map(tag => {
+                        if (tag.class == tagName) {
+                            console.log(tag)
+                            console.log(photoUrl)
+                            observer.next(true);
+                        } else {
+                            observer.next(false);
+                        }
+                    })
+                    observer.complete();
+                }
+            ));
+        return obs;
     }
 }
